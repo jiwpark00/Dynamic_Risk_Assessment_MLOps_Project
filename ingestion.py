@@ -26,6 +26,11 @@ def merge_multiple_dataframe():
         filepath = input_folder_path + '/' + each_file
         df1 = pd.read_csv(filepath)
         end_df = end_df.append(df1)
+
+    ingestedfiles = open(os.getcwd() + '/' + output_folder_path + '/' + 'ingestedfiles.txt',"w")
+    for file in filenames:
+        ingestedfiles.write(file + "\n")
+    ingestedfiles.close()
     
     end_df.drop_duplicates(inplace=True)
 
