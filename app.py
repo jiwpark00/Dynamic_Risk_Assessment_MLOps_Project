@@ -2,12 +2,10 @@ from flask import Flask, session, jsonify, request
 import pandas as pd
 import numpy as np
 import pickle
-import create_prediction_model
-import diagnosis 
-import predict_exited_from_saved_model
+import scoring
+from diagnostics import *
 import json
 import os
-
 
 
 ######################Set up variables for use in our script
@@ -17,34 +15,59 @@ app.secret_key = '1652d576-484a-49fd-913a-6879acfa6ba4'
 with open('config.json','r') as f:
     config = json.load(f) 
 
-dataset_csv_path = os.path.join(config['output_folder_path']) 
+dataset_csv_path = os.path.join(config['output_folder_path'])
+test_data_path = os.path.join(config['test_data_path']) 
 
-prediction_model = None
+# read the model and test_data
+model_path = os.path.join(config['output_model_path']) 
+prediction_model = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+datalocation = os.getcwd() + '/' + test_data_path + '/testdata.csv'  
+test_data = pd.read_csv(datalocation)
 
+# Adding this to test the app successfully loads
+@app.route("/", methods=["GET"])
+def homepage():
+    return {"Welcome: ": "Here is home page"}
 
-#######################Prediction Endpoint
-@app.route("/prediction", methods=['POST','OPTIONS'])
+######################Prediction Endpoint
+@app.route("/prediction", methods=["POST"])
 def predict():        
     #call the prediction function you created in Step 3
-    return #add return value for prediction outputs
+    # if dataset_location is not passed, this API call doesn't error - it still returns a result
+    dataset_location_received = request.args.get('dataset_location')
+    default_data = pd.read_csv(dataset_location_received)
+    preds = model_predictions(default_data,prediction_model)
+    preds = np.array2string(preds, precision=2, separator=',',
+                      suppress_small=True)
+    return preds #add return value for prediction outputs
 
 #######################Scoring Endpoint
 @app.route("/scoring", methods=['GET','OPTIONS'])
-def stats():        
+def scoring_stats():        
     #check the score of the deployed model
-    return #add return value (a single F1 score number)
+    f1_output = scoring.score_model(prediction_model, test_data)
+    return {"f1 output is:" : str(f1_output)} #add return value (a single F1 score number)
 
 #######################Summary Statistics Endpoint
 @app.route("/summarystats", methods=['GET','OPTIONS'])
-def stats():        
+def summary_stats():        
     #check means, medians, and modes for each column
-    return #return a list of all calculated summary statistics
+    summarystats = dataframe_summary()
+    return {"Here is the summary stats": summarystats}#return a list of all calculated summary statistics
 
 #######################Diagnostics Endpoint
 @app.route("/diagnostics", methods=['GET','OPTIONS'])
-def stats():        
+def diagnostics_stats():        
     #check timing and percent NA values
-    return #add return value for all diagnostics
+    na_p = check_NA()
+    
+    execute_times = execution_time()
+    
+    dependencies = outdated_packages_list()
+    dependencies = dependencies.to_dict() # this allows writing output as json
+    
+    return {'NA percent is (from each numeric col in the order)': na_p, 'execution time is (0 = training, 1 = ingestion): ': execute_times, \
+           'List of dependencies and details is shown here: ': dependencies}#add return value for all diagnostics
 
 if __name__ == "__main__":    
     app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)

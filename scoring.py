@@ -38,4 +38,6 @@ def score_model(model, test_data):
     f1_file.write(str(f1_result))
     f1_file.close()
 
+    return f1_result
+
 score_model(model,test_data)
