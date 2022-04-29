@@ -18,7 +18,8 @@ dataset_csv_path = os.path.join(config['output_folder_path'])
 test_data_path = os.path.join(config['test_data_path']) 
 
 # read the model and test_data
-model = pickle.load(open('practicemodels/trainedmodel.pkl', 'rb'))
+model_path = os.path.join(config['output_model_path']) 
+model = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
 datalocation = os.getcwd() + '/' + test_data_path + '/testdata.csv'  
 test_data = pd.read_csv(datalocation)
 
