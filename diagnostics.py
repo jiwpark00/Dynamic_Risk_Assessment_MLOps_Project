@@ -102,6 +102,8 @@ def outdated_packages_list():
     output_path_dependencies = os.getcwd() + '/' + os.path.join(config['prod_deployment_path']) + '/dependencies_status.csv'
     requirements_installed_recent.to_csv(output_path_dependencies,index=False)
 
+    return requirements_installed_recent
+
 model_predictions(test_df,lr)
 dataframe_summary()
 check_NA()
