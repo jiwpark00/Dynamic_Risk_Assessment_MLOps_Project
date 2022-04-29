@@ -23,3 +23,12 @@ There is a single diagnostics.py file that does a quite bit of work here.
 - Summary statistics for the numerical columns are calculated for mean, median, and standard deviation.
 
 - Dependency statuses are carefully evaluated for currently being used by the project (from Udacity env), installed version, and the most recent version as called by on Apr 2022.
+
+# Reporting
+Model reporting section carries out metric reporting as well as allowing API setup using Flask framework and curl (for POST)/requests (for GET) calls embedded in apicalls python script.
+
+- Reporting file generates and saves confusion matrix as well as predicted values.
+
+- App file contains 1 endpoint for prediction (the parameter to pass is the file location) and 3 endpoints for scoring, summary statistics, and diagnostics, respectively.
+
+- API Call file uses subprocess and requests to call API endpoints, retrieve the outputs (after changing from bytes to more manageable output), and saves the result.
