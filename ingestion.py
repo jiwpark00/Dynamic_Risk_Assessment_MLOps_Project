@@ -23,31 +23,51 @@ def merge_multiple_dataframe():
     input_directory = os.getcwd() + '/' + input_folder_path
     filenames = os.listdir(input_directory)
     for each_file in filenames:
+        if each_file == '.DS_Store': # resolving this Mac specific issue
+            continue
         filepath = input_folder_path + '/' + each_file
         df1 = pd.read_csv(filepath)
         end_df = end_df.append(df1)
-
-    ingestedfiles = open(os.getcwd() + '/' + output_folder_path + '/' + 'ingestedfiles.txt',"w")
-    for file in filenames:
-        ingestedfiles.write(file + "\n")
-    ingestedfiles.close()
+    if config['input_folder_path'] == "practicedata":
+        ingestedfiles = open(os.getcwd() + '/' + output_folder_path + '/' + 'ingestedfiles.txt',"w")
+        for file in filenames:
+            ingestedfiles.write(file + "\n")
+        ingestedfiles.close()
+    else:
+        todays_date = datetime.today().strftime('%Y-%m-%d')
+        ingestedfiles = open(os.getcwd() + '/' + output_folder_path + '/' + 'ingestedfiles_' + todays_date + '.txt',"w")
+        for file in filenames:
+            ingestedfiles.write(file + "\n")
+        ingestedfiles.close()
     
     end_df.drop_duplicates(inplace=True)
 
     return end_df
 
-result = merge_multiple_dataframe()
+def data_write():
 
-# This was added due to re-testing on Mac causing some errors for my env
-clean_cols = []
-for col in result.columns:
-	if col != 'Unnamed: 0':
-		clean_cols.append(col)
+    result = merge_multiple_dataframe()
 
-result = result[clean_cols] # handling error during different env
+    # This was added due to re-testing on Mac causing some errors for my env
+    clean_cols = []
+    for col in result.columns:
+        if col != 'Unnamed: 0':
+            clean_cols.append(col)
 
-output_name = os.getcwd() + '/' + output_folder_path + '/finaldata.csv'
-result.to_csv(output_name, index=False)
+    result = result[clean_cols] # handling error during different env
+
+    # This block is added to ensure process automation does not overwrite the existing training data
+    if config['input_folder_path'] == "practicedata":
+        output_name = os.getcwd() + '/' + output_folder_path + '/finaldata.csv'
+        result.to_csv(output_name, index=False)
+    else:
+        # todays_date = datetime.today().strftime('%Y-%m-%d')
+        todays_date = '2022-04-29'
+        output_name = os.getcwd() + '/' + output_folder_path + '/finaldata_' + todays_date + '.csv'
+        result.to_csv(output_name, index=False)
+
+    print("New finaldata has been written")
 
 if __name__ == '__main__':
     merge_multiple_dataframe()
+    data_write()

@@ -7,6 +7,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 import json
+from datetime import datetime
 
 ###################Load config.json and get path variables
 with open('config.json','r') as f:
@@ -34,6 +35,10 @@ def train_model():
     lr.fit(X,y)
     
     #write the trained model to your workspace in a file called trainedmodel.pkl
-    pickle.dump(lr, open(model_path+'/trainedmodel.pkl', 'wb'))
+    if config['output_model_path'] == 'practicemodels':
+        pickle.dump(lr, open(model_path+'/trainedmodel.pkl', 'wb'))
+    else:
+        todays_date = datetime.today().strftime('%Y-%m-%d')
+        pickle.dump(lr, open(model_path+'/trainedmodel_' + todays_date + '.pkl', 'wb'))
 
 train_model()

@@ -8,7 +8,7 @@ import seaborn as sns
 import json
 import os
 from diagnostics import *
-
+from datetime import datetime
 
 ###############Load config.json and get path variables
 with open('config.json','r') as f:
@@ -20,11 +20,22 @@ test_data_path = os.path.join(config['test_data_path'])
 full_test_data_path = os.getcwd() + '/' + test_data_path + '/testdata.csv'
 test_df = pd.read_csv(full_test_data_path)
 
-model_path = os.path.join(config['prod_deployment_path']) 
-lr = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+# todays_date = '2022-04-29'
+todays_date = datetime.today().strftime('%Y-%m-%d')
 
-matrix_path = os.path.join(config['output_model_path'])
-full_matrix_path = matrix_path + '/confusionmatrix.png'
+model_path = os.path.join(config['prod_deployment_path'])
+if config['output_model_path'] == 'practicemodels': 
+    lr = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+
+    matrix_path = os.path.join(config['output_model_path'])
+    full_matrix_path = matrix_path + '/confusionmatrix.png'
+
+else: # this for re-deployment
+    lr = pickle.load(open(model_path+'/trainedmodel_' + todays_date + '.pkl', 'rb'))
+
+    matrix_path = os.path.join(config['output_model_path'])
+    full_matrix_path = matrix_path + '/confusionmatrix2.png'
+
 
 ##############Function for reporting
 def score_model():

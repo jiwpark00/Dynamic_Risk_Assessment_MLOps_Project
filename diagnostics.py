@@ -7,6 +7,7 @@ import pickle
 import json
 import requests
 import subprocess
+from datetime import datetime
 
 ##################Load config.json and get environment variables
 with open('config.json','r') as f:
@@ -18,8 +19,14 @@ test_data_path = os.path.join(config['test_data_path'])
 full_test_data_path = os.getcwd() + '/' + test_data_path + '/testdata.csv'
 test_df = pd.read_csv(full_test_data_path)
 
+# todays_date = '2022-04-29'
+todays_date = datetime.today().strftime('%Y-%m-%d')
+
 model_path = os.path.join(config['prod_deployment_path']) 
-lr = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+if config['output_model_path'] == 'practicemodels':
+    lr = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+else: # this for re-deployment
+    lr = pickle.load(open(model_path+'/trainedmodel_' + todays_date + '.pkl', 'rb'))
 
 dataset_path = os.getcwd() + '/' + dataset_csv_path + '/finaldata.csv'
 dataset_for_stats = pd.read_csv(dataset_path)
@@ -99,8 +106,13 @@ def outdated_packages_list():
     requirements_installed_recent = pd.merge(requirements_installed, most_recent_df, how='inner', left_on=['package_name'],right_on=['package_name'])    
     
     # we will return this to the production deployment
-    output_path_dependencies = os.getcwd() + '/' + os.path.join(config['prod_deployment_path']) + '/dependencies_status.csv'
-    requirements_installed_recent.to_csv(output_path_dependencies,index=False)
+    
+    if config['output_model_path'] == 'practicemodels':
+        output_path_dependencies = os.getcwd() + '/' + os.path.join(config['prod_deployment_path']) + '/dependencies_status.csv'
+        requirements_installed_recent.to_csv(output_path_dependencies,index=False)
+    else:
+        output_path_dependencies = os.getcwd() + '/' + os.path.join(config['prod_deployment_path']) + '/dependencies_status_' + todays_date + '.csv'
+        requirements_installed_recent.to_csv(output_path_dependencies,index=False)
 
     return requirements_installed_recent
 

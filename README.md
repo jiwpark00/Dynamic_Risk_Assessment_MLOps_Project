@@ -32,3 +32,16 @@ Model reporting section carries out metric reporting as well as allowing API set
 - App file contains 1 endpoint for prediction (the parameter to pass is the file location) and 3 endpoints for scoring, summary statistics, and diagnostics, respectively.
 
 - API Call file uses subprocess and requests to call API endpoints, retrieve the outputs (after changing from bytes to more manageable output), and saves the result.
+
+# Process Automation
+Existing codes have been edited to 1) prevent overwrites (as this is critical but not adequately addressed in the original project) and 2) ensure tracking and logging for key fields such as date.
+
+- Noteworthy changes:
+
+- After changing the config file - ingestion file was edited to include date for re-deployment purpose runs. This allows creation of new ingestedfiles list and finaldata csv that is used for model re-training.
+
+- This type of checking for re-deployment happens for training, scoring, deployment, diagnostics, app, and apicalls to ensure that existing data is not overwritten and the new runs are kept tracked. For the purpose of testing, I also set the low new score to ensure that I can "force" the fullprocess code (this is the end-to-end re-deployment code) can execute.
+
+- Confusionmatrix2.png and apireturns2.txt include results of this re-training.
+
+- Cronjob.txt includes the setup for running the fullprocess.py every 10 minutes (tested from Udacity env) 

@@ -7,7 +7,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 import json
-
+from datetime import datetime
 
 
 #################Load config.json and get path variables
@@ -18,8 +18,7 @@ dataset_csv_path = os.path.join(config['output_folder_path'])
 test_data_path = os.path.join(config['test_data_path']) 
 
 # read the model and test_data
-model_path = os.path.join(config['output_model_path']) 
-model = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+model = pickle.load(open('practicemodels/trainedmodel.pkl', 'rb'))
 datalocation = os.getcwd() + '/' + test_data_path + '/testdata.csv'  
 test_data = pd.read_csv(datalocation)
 
@@ -32,12 +31,23 @@ def score_model(model, test_data):
     
     f1_result = metrics.f1_score(y_true, model.predict(y_test_cols))
     
-    output_path = os.path.join(config['output_model_path']) 
-
-    f1_file = open(os.getcwd() + '/' + output_path + '/' + 'latestscore.txt',"w")
-    f1_file.write(str(f1_result))
-    f1_file.close()
-
     return f1_result
 
-score_model(model,test_data)
+f1_output = score_model(model,test_data)
+
+def write_score(score=None):
+    if config['output_model_path'] == "practicemodels":
+        f1_output = f1_output # e.g., we don't pass in a score
+        output_path = os.path.join(config['output_model_path']) 
+        f1_file = open(os.getcwd() + '/' + output_path + '/' + 'latestscore.txt',"w")
+        f1_file.write(str(f1_output))
+        f1_file.close()
+    else:
+        f1_output = score
+        output_path = os.path.join(config['output_model_path'])
+        todays_date = datetime.today().strftime('%Y-%m-%d') 
+        f1_file = open(os.getcwd() + '/' + output_path + '/' + 'latestscore_' + todays_date + '.txt',"w")
+        f1_file.write(str(f1_output))
+        f1_file.close()
+
+write_score()

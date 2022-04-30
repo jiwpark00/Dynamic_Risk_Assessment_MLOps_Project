@@ -6,7 +6,7 @@ import scoring
 from diagnostics import *
 import json
 import os
-
+from datetime import datetime
 
 ######################Set up variables for use in our script
 app = Flask(__name__)
@@ -18,9 +18,15 @@ with open('config.json','r') as f:
 dataset_csv_path = os.path.join(config['output_folder_path'])
 test_data_path = os.path.join(config['test_data_path']) 
 
+# todays_date = '2022-04-29'
+todays_date = datetime.today().strftime('%Y-%m-%d')
+
 # read the model and test_data
 model_path = os.path.join(config['output_model_path']) 
-prediction_model = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+if config['output_model_path'] == 'practicemodels':
+    prediction_model = pickle.load(open(model_path+'/trainedmodel.pkl', 'rb'))
+else:
+    prediction_model = pickle.load(open(model_path+'/trainedmodel_' + todays_date + '.pkl', 'rb'))
 datalocation = os.getcwd() + '/' + test_data_path + '/testdata.csv'  
 test_data = pd.read_csv(datalocation)
 
